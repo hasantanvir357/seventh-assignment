@@ -9,7 +9,7 @@ export default function Navbar() {
     const pathname = usePathname();
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-const [banglaDate] = useState(() => getTodayBanglaDate());
+    const [banglaDate] = useState(() => getTodayBanglaDate());
 
     useEffect(() => {
         async function fetchData() {
@@ -29,7 +29,25 @@ const [banglaDate] = useState(() => getTodayBanglaDate());
         fetchData();
     }, []);
 
-    
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const [catRes, prodRes] = await Promise.all([
+                    fetch('https://api.api-store.workers.dev/api/bazardor/categories'),
+                    fetch('https://api.api-store.workers.dev/api/bazardor/products')
+                ]);
+                const catData = await catRes.json();
+                const prodData = await prodRes.json();
+                setCategories(catData);
+                setProducts(prodData);
+            } catch (err) {
+                console.error('Error fetching navbar data:', err);
+            }
+        }
+        fetchData();
+    }, []);
+
+
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">

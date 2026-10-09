@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import { Providers } from './provider';
@@ -20,7 +21,9 @@ export default function RootLayout({ children }) {
     <html lang="bn" className={hindSiliguri.className}>
       <body className="bg-[#f8faf8] text-gray-800 antialiased">
         <Providers>
-          <Navbar />
+          <Suspense fallback={<div className="h-16 bg-white border-b border-gray-100" />}>
+            <Navbar />
+          </Suspense>
           <main className="min-h-screen">{children}</main>
           <Footer />
         </Providers>
