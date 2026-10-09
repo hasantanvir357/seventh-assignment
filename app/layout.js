@@ -1,4 +1,5 @@
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import { Providers } from './provider';
 import { Hind_Siliguri } from 'next/font/google';
 import './globals.css';
@@ -21,6 +22,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <Navbar />
           <main className="min-h-screen">{children}</main>
+          <Footer />
         </Providers>
       </body>
     </html>
