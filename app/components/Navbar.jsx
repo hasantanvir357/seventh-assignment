@@ -1,150 +1,158 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { getTodayBanglaDate, toBengaliNumber } from '@/lib/bengali';
+import Image from 'next/image';
+import { useSession, signOut } from '@/lib/auth-client';
+import { toBengaliNumber } from '@/lib/bengali';
 
 export default function Navbar() {
-    const pathname = usePathname();
+    const { data: session } = useSession();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [tickerProducts, setTickerProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [banglaDate] = useState(() => getTodayBanglaDate());
+
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [catRes, prodRes] = await Promise.all([
-                    fetch('https://api.api-store.workers.dev/api/bazardor/categories'),
-                    fetch('https://api.api-store.workers.dev/api/bazardor/products')
+                const [prodRes, catRes] = await Promise.all([
+                    fetch('https://api.api-store.workers.dev/api/bazardor/products'),
+                    fetch('https://api.api-store.workers.dev/api/bazardor/categories')
                 ]);
-                const catData = await catRes.json();
-                const prodData = await prodRes.json();
-                setCategories(catData);
-                setProducts(prodData);
+                if (prodRes.ok) {
+                    const prods = await prodRes.json();
+                    setTickerProducts(prods.slice(0, 10));
+                }
+                if (catRes.ok) {
+                    const cats = await catRes.json();
+                    setCategories(cats);
+                }
             } catch (err) {
-                console.error('Error fetching navbar data:', err);
+                console.error('Navbar fetch error:', err);
             }
         }
         fetchData();
     }, []);
-
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const [catRes, prodRes] = await Promise.all([
-                    fetch('https://api.api-store.workers.dev/api/bazardor/categories'),
-                    fetch('https://api.api-store.workers.dev/api/bazardor/products')
-                ]);
-                const catData = await catRes.json();
-                const prodData = await prodRes.json();
-                setCategories(catData);
-                setProducts(prodData);
-            } catch (err) {
-                console.error('Error fetching navbar data:', err);
-            }
-        }
-        fetchData();
-    }, []);
-
-
 
     return (
-        <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-
-            <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+        <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-2xs">
 
 
-                <Link href="/" className="flex flex-col group">
-                    <div className="flex items-center gap-2 text-2xl font-bold text-emerald-700">
-                        <span>🛒</span>
-                        <span>বাজার দর</span>
-                    </div>
-                    <span className="text-xs text-gray-500 font-medium ml-8">
-                        {banglaDate}
+            <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+
+
+                <Link href="/" className="flex items-center gap-2.5 group">
+                    <span className="text-2xl p-1.5 bg-emerald-50 rounded-xl border border-emerald-100/80 group-hover:scale-105 transition-transform">
+                        🛒
                     </span>
+                    <div>
+                        <div className="text-xl font-bold text-emerald-800 leading-tight">বাজার দর</div>
+                        <p className="text-[10px] text-gray-400 font-medium">আজকের বাজারের হালচাল</p>
+                    </div>
                 </Link>
 
 
-                <div className="flex items-center gap-3">
-                    <Link
-                        href="/signin"
-                        className="px-4 py-1.5 text-sm font-medium text-emerald-700 border border-emerald-600 rounded-lg hover:bg-emerald-50 transition-all"
-                    >
-                        সাইন ইন
-                    </Link>
-                    <Link
-                        href="/signup"
-                        className="px-4 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all shadow-sm"
-                    >
-                        সাইন আপ
-                    </Link>
-                </div>
-            </div>
-
-
-            <div className="border-t border-gray-100 bg-emerald-50/50">
-                <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar text-sm">
-
-                    {categories.map((cat) => {
-                        const href = `/category/${cat.slug}`;
-                        const isActive = pathname === href;
-                        return (
-                            <Link
-                                key={cat.id}
-                                href={href}
-                                className={`px-3 py-1 rounded-full whitespace-nowrap transition-all font-medium flex items-center gap-1.5 ${isActive
-                                    ? 'bg-emerald-600 text-white shadow-sm'
-                                    : 'text-gray-700 hover:bg-emerald-100/60'
-                                    }`}
+                <div className="flex items-center gap-3 relative">
+                    {session ? (
+                        <div className="relative">
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center gap-2 hover:bg-gray-50 p-1.5 rounded-xl transition-colors border border-gray-100"
                             >
-                                <span>{cat.icon}</span>
-                                <span>{cat.nameBn}</span>
+                                <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden">
+                                    {session.user?.image ? (
+                                        <Image src={session.user.image} alt="User" width={32} height={32} className="w-full h-full object-cover" />
+                                    ) : (
+                                        session.user?.name?.charAt(0) || 'U'
+                                    )}
+                                </div>
+                                <span className="text-xs font-semibold text-gray-800 hidden sm:inline">
+                                    {session.user?.name}
+                                </span>
+                                <span className="text-[10px] text-gray-400">▼</span>
+                            </button>
+
+
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 text-xs">
+                                    <div className="px-4 py-2 border-b border-gray-100">
+                                        <p className="font-bold text-gray-900">{session.user?.name}</p>
+                                        <p className="text-gray-400 truncate text-[11px]">{session.user?.email}</p>
+                                    </div>
+
+                                    <Link
+                                        href="/profile"
+                                        onClick={() => setDropdownOpen(false)}
+                                        className="flex items-center gap-2 px-4 py-2.5 hover:bg-emerald-50 text-gray-700 font-medium transition-colors"
+                                    >
+                                        <span>👤</span> আমার প্রোফাইল
+                                    </Link>
+
+                                    <button
+                                        onClick={async () => {
+                                            setDropdownOpen(false);
+                                            await signOut();
+                                        }}
+                                        className="w-full text-left flex items-center gap-2 px-4 py-2.5 hover:bg-rose-50 text-rose-600 font-semibold border-t border-gray-100 transition-colors"
+                                    >
+                                        <span>↳</span> সাইন আউট
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href="/login"
+                                className="text-xs font-semibold border border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-3.5 py-1.5 rounded-lg transition-colors"
+                            >
+                                সাইন ইন
                             </Link>
-                        );
-                    })}
+                            <Link
+                                href="/register"
+                                className="text-xs font-semibold bg-emerald-600 text-white px-3.5 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors shadow-xs"
+                            >
+                                সাইন আপ
+                            </Link>
+                        </div>
+                    )}
                 </div>
+
             </div>
 
 
+            {categories.length > 0 && (
+                <div className="border-t border-gray-100 bg-emerald-50/30 overflow-x-auto scrollbar-none">
+                    <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-4 text-xs font-semibold text-gray-600 whitespace-nowrap">
+                        {categories.map((cat) => (
+                            <Link
+                                key={cat.id || cat.slug}
+                                href={`/category/${cat.slug}`}
+                                className="hover:text-emerald-700 transition-colors flex items-center gap-1"
+                            >
+                                <span>{cat.icon || '📦'}</span>
+                                <span>{cat.nameBn || cat.name}</span>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
-            {products.length > 0 && (
-                <div className="bg-white text-gray-800 py-2 text-xs overflow-hidden relative border-y border-emerald-100 shadow-inner">
-                    <style>{`
-            @keyframes marquee {
-              0% { transform: translateX(0%); }
-              100% { transform: translateX(-50%); }
-            }
-            .scroll-marquee {
-              display: inline-flex;
-              animation: marquee 60s linear infinite;
-            }
-            .scroll-marquee:hover {
-              animation-play-state: paused;
-            }
-          `}</style>
 
-                    <div className="scroll-marquee whitespace-nowrap flex items-center gap-8">
-                        {products.concat(products).map((prod, idx) => {
-                            const isUp = prod.change?.dir === 'up';
-                            const isDown = prod.change?.dir === 'down';
+            {tickerProducts.length > 0 && (
+                <div className="bg-gray-50 border-t border-gray-100 overflow-hidden py-1.5 text-xs text-gray-600">
+                    <div className="flex gap-6 animate-marquee whitespace-nowrap">
+                        {tickerProducts.concat(tickerProducts).map((item, i) => {
+                            const isUp = item.change?.dir === 'up';
+                            const isDown = item.change?.dir === 'down';
                             return (
-                                <div key={idx} className="inline-flex items-center gap-2 font-semibold">
-                                    <span className="text-sm">{prod.image || '🛒'}</span>
-                                    <span className="text-gray-900">{prod.nameBn}</span>
-                                    <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                                        {toBengaliNumber(prod.today)} টাকা/{prod.unit}
-                                    </span>
-                                    <span
-                                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${isUp
-                                            ? 'bg-rose-100 text-rose-700 border border-rose-200'
-                                            : isDown
-                                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                                                : 'bg-gray-100 text-gray-600 border border-gray-200'
-                                            }`}
-                                    >
-                                        {isUp ? '▲' : isDown ? '▼' : '—'}{' '}
-                                        {toBengaliNumber(prod.change?.pct)}%
+                                <div key={i} className="inline-flex items-center gap-1.5 px-2">
+                                    <span>{item.image || '🛒'}</span>
+                                    <span className="font-semibold text-gray-800">{item.nameBn}:</span>
+                                    <span className="font-bold">{toBengaliNumber(item.today)} টাকা/{item.unit}</span>
+                                    <span className={`text-[10px] font-bold ${isUp ? 'text-rose-600' : isDown ? 'text-emerald-700' : 'text-gray-500'}`}>
+                                        {isUp ? '▲' : isDown ? '▼' : '—'} {toBengaliNumber(item.change?.pct)}%
                                     </span>
                                 </div>
                             );
@@ -152,6 +160,7 @@ export default function Navbar() {
                     </div>
                 </div>
             )}
+
         </header>
     );
 }
