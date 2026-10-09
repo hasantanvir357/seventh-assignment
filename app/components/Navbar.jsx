@@ -10,7 +10,7 @@ export default function Navbar() {
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
 
-    // Fetch categories and products for marquee ticker
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -33,10 +33,10 @@ export default function Navbar() {
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-            {/* Top Main Navbar */}
+
             <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
 
-                {/* Left: Logo & Bangla Date */}
+
                 <Link href="/" className="flex flex-col group">
                     <div className="flex items-center gap-2 text-2xl font-bold text-emerald-700">
                         <span>🛒</span>
@@ -47,7 +47,7 @@ export default function Navbar() {
                     </span>
                 </Link>
 
-                {/* Right: Auth Buttons */}
+
                 <div className="flex items-center gap-3">
                     <Link
                         href="/signin"
@@ -64,7 +64,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Navigation Row: Categories */}
+
             <div className="border-t border-gray-100 bg-emerald-50/50">
                 <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar text-sm">
                     <Link
@@ -96,7 +96,7 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Marquee Ticker */}
+
             {products.length > 0 && (
                 <div className="bg-gray-900 text-white py-2 text-xs overflow-hidden relative border-t border-gray-800">
                     <style>{`
@@ -106,7 +106,7 @@ export default function Navbar() {
             }
             .scroll-marquee {
               display: inline-flex;
-              animation: marquee 50s linear infinite;
+              animation: marquee 55s linear infinite;
             }
             .scroll-marquee:hover {
               animation-play-state: paused;
@@ -126,10 +126,10 @@ export default function Navbar() {
                                     </span>
                                     <span
                                         className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${isUp
-                                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                                                : isDown
-                                                    ? 'bg-rose-950 text-rose-400 border border-rose-800'
-                                                    : 'bg-gray-800 text-gray-300'
+                                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                            : isDown
+                                                ? 'bg-rose-950 text-rose-400 border border-rose-800'
+                                                : 'bg-gray-800 text-gray-300'
                                             }`}
                                     >
                                         {isUp ? '▲' : isDown ? '▼' : '—'}{' '}
