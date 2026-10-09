@@ -1,3 +1,5 @@
+import Navbar from '@/components/Navbar';
+
 import { Providers } from './provider';
 import './globals.css';
 
@@ -10,7 +12,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="bn">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+        </Providers>
       </body>
     </html>
   );
