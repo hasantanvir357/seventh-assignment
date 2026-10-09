@@ -97,8 +97,9 @@ export default function Navbar() {
             </div>
 
 
+
             {products.length > 0 && (
-                <div className="bg-gray-900 text-white py-2 text-xs overflow-hidden relative border-t border-gray-800">
+                <div className="bg-white text-gray-800 py-2 text-xs overflow-hidden relative border-y border-emerald-100 shadow-inner">
                     <style>{`
             @keyframes marquee {
               0% { transform: translateX(0%); }
@@ -106,7 +107,7 @@ export default function Navbar() {
             }
             .scroll-marquee {
               display: inline-flex;
-              animation: marquee 55s linear infinite;
+              animation: marquee 60s linear infinite;
             }
             .scroll-marquee:hover {
               animation-play-state: paused;
@@ -118,18 +119,18 @@ export default function Navbar() {
                             const isUp = prod.change?.dir === 'up';
                             const isDown = prod.change?.dir === 'down';
                             return (
-                                <div key={idx} className="inline-flex items-center gap-2 font-medium">
-                                    <span>{prod.image || '🛒'}</span>
-                                    <span className="text-gray-200">{prod.nameBn}</span>
-                                    <span className="text-amber-400">
+                                <div key={idx} className="inline-flex items-center gap-2 font-semibold">
+                                    <span className="text-sm">{prod.image || '🛒'}</span>
+                                    <span className="text-gray-900">{prod.nameBn}</span>
+                                    <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                                         {toBengaliNumber(prod.today)} টাকা/{prod.unit}
                                     </span>
                                     <span
                                         className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${isUp
-                                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                            ? 'bg-rose-100 text-rose-700 border border-rose-200'
                                             : isDown
-                                                ? 'bg-rose-950 text-rose-400 border border-rose-800'
-                                                : 'bg-gray-800 text-gray-300'
+                                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                                : 'bg-gray-100 text-gray-600 border border-gray-200'
                                             }`}
                                     >
                                         {isUp ? '▲' : isDown ? '▼' : '—'}{' '}

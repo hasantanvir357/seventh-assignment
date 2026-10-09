@@ -13,12 +13,12 @@ export default function Hero() {
     };
 
     return (
-        <section className="bg-emerald-50/60 py-8 md:py-12 border-b border-emerald-100/60">
+        <section className="bg-[#f0f7f4] py-10 md:py-16 border-b border-emerald-100/40">
             <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8">
 
 
                 <div className="flex-1 text-center md:text-left">
-                    <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold mb-3">
+                    <span className="inline-block px-3.5 py-1 bg-emerald-100/80 text-emerald-800 rounded-full text-xs font-semibold mb-4 border border-emerald-200/50">
                         নিত্যপ্রয়োজনীয় পণ্যের সঠিক তথ্য
                     </span>
 
@@ -27,17 +27,17 @@ export default function Hero() {
                         <span className="text-emerald-700">এক নজরে দেখুন</span>
                     </h1>
 
-                    <p className="text-gray-600 text-sm md:text-base mb-6 max-w-lg mx-auto md:mx-0">
+                    <p className="text-gray-600 text-sm md:text-base mb-6 max-w-lg mx-auto md:mx-0 leading-relaxed">
                         চাল, ডাল, তেল, সবজি, মাছ ও মসলা সহ নিত্যপ্রয়োজনীয় পণ্যের বাজারভিত্তিক বিস্তারিত তথ্য।
                     </p>
 
                     <a
                         href="#সব-পণ্য"
                         onClick={handleScrollToProducts}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white font-medium text-sm md:text-base rounded-xl hover:bg-emerald-700 transition-all shadow-md hover:shadow-emerald-200"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#00a859] text-white font-medium text-sm md:text-base rounded-lg hover:bg-emerald-700 transition-all shadow-sm hover:shadow-emerald-200"
                     >
                         <span>সব পণ্য দেখুন</span>
-                        <span>↓</span>
+                        <span className="text-lg">↓</span>
                     </a>
                 </div>
 
@@ -47,9 +47,9 @@ export default function Hero() {
                         <Image
                             src="/bazar-hero.png"
                             alt="বাজার দর হিরো ব্যানার"
-                            width={350}
-                            height={350}
-                            className="object-contain drop-shadow-md"
+                            width={320}
+                            height={320}
+                            className="object-contain drop-shadow-sm"
                             priority
                         />
                     </div>
