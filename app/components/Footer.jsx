@@ -1,10 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export default function Footer() {
-    const year = new Date().getFullYear();
+    const [year, setYear] = useState('2026');
+
+    useEffect(() => {
+        setYear(new Date().getFullYear().toString());
+    }, []);
 
     return (
         <footer className="bg-white border-t border-gray-100 py-8 text-gray-600 text-sm">

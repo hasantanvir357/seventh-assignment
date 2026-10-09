@@ -1,34 +1,63 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { toBengaliNumber } from '@/lib/bengali';
 
 export default function ProductDetailPage({ params }) {
-    const resolvedParams = use(params);
-    const slug = resolvedParams?.slug;
-
+    const [slug, setSlug] = useState(null);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        Promise.resolve(params).then((resolved) => {
+            if (resolved?.slug) {
+                setSlug(resolved.slug);
+            }
+        });
+    }, [params]);
+
+    useEffect(() => {
         if (!slug) return;
+
         async function fetchProduct() {
             try {
                 setLoading(true);
+                // Try fetching direct product by slug/id
                 const res = await fetch(`https://api.api-store.workers.dev/api/bazardor/products/${slug}`);
-                const data = await res.json();
-                setProduct(data);
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.nameBn) {
+                        setProduct(data);
+                        return;
+                    }
+                }
+
+                // Fallback: search from all products array if direct endpoint misses slug
+                const allRes = await fetch('https://api.api-store.workers.dev/api/bazardor/products');
+                const allProducts = await allRes.json();
+                const found = allProducts.find(
+                    (p) => p.slug === slug || p.id === slug || p.id === Number(slug)
+                );
+
+                if (found) {
+                    // fetch full item details with found id
+                    const detailRes = await fetch(`https://api.api-store.workers.dev/api/bazardor/products/${found.id}`);
+                    const detailData = await detailRes.json();
+                    setProduct(detailData);
+                }
             } catch (err) {
                 console.error('Error fetching product details:', err);
             } finally {
                 setLoading(false);
             }
         }
+
         fetchProduct();
     }, [slug]);
 
-    if (loading) {
+    if (loading || !slug) {
         return (
             <div className="max-w-5xl mx-auto px-4 py-12 animate-pulse space-y-6">
                 <div className="h-4 bg-gray-200 rounded w-1/4"></div>
@@ -54,7 +83,6 @@ export default function ProductDetailPage({ params }) {
     const isUp = product.change?.dir === 'up';
     const isDown = product.change?.dir === 'down';
 
-
     let minMarketPrice = product.today;
     let maxMarketPrice = product.today;
     let minMarketName = '';
@@ -76,7 +104,7 @@ export default function ProductDetailPage({ params }) {
         <div className="bg-[#f8faf8] min-h-screen py-8">
             <div className="max-w-5xl mx-auto px-4 space-y-6">
 
-               
+                {/* Breadcrumb */}
                 <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
                     <Link href="/" className="hover:text-emerald-700">হোম</Link>
                     <span>/</span>
@@ -87,7 +115,7 @@ export default function ProductDetailPage({ params }) {
                     <span className="text-gray-900 font-semibold">{product.nameBn}</span>
                 </div>
 
-
+                {/* Top Header Card */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <span className="text-5xl p-4 bg-emerald-50 rounded-2xl border border-emerald-100/60 select-none">
@@ -106,7 +134,7 @@ export default function ProductDetailPage({ params }) {
                         </div>
                     </div>
 
-                    <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 w-full sm:w-auto text-center sm:text-right min-w-45">
+                    <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-100 w-full sm:w-auto text-center sm:text-right min-w-[180px]">
                         <span className="text-xs text-emerald-800 font-semibold block mb-0.5">আজকের গড় দাম</span>
                         <div className="text-3xl font-bold text-emerald-800">
                             {toBengaliNumber(product.today)}
@@ -120,13 +148,12 @@ export default function ProductDetailPage({ params }) {
                     </div>
                 </div>
 
-
+                {/* 3 Summary Cards (হুবহু ফিগমা টেমপ্লেটের মতো) */}
                 <div>
                     <h2 className="text-base font-bold text-gray-900 mb-3">
                         দামের সারসংক্ষেপ
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
                             <span className="text-xs text-gray-500 font-medium block mb-1">সর্বনিম্ন দাম</span>
                             <div className="text-2xl font-bold text-emerald-700">
@@ -136,7 +163,6 @@ export default function ProductDetailPage({ params }) {
                                 <span className="text-[11px] text-gray-400 mt-1 block">সবচেয়ে কম: {minMarketName}</span>
                             )}
                         </div>
-
 
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
                             <span className="text-xs text-gray-500 font-medium block mb-1">সর্বোচ্চ দাম</span>
@@ -148,7 +174,6 @@ export default function ProductDetailPage({ params }) {
                             )}
                         </div>
 
-
                         <div className="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
                             <span className="text-xs text-gray-500 font-medium block mb-1">গড় দাম</span>
                             <div className="text-2xl font-bold text-gray-800">
@@ -159,7 +184,7 @@ export default function ProductDetailPage({ params }) {
                     </div>
                 </div>
 
-
+                {/* Market Wise Table */}
                 {product.markets && product.markets.length > 0 && (
                     <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <h2 className="text-base font-bold text-gray-900 mb-4">
