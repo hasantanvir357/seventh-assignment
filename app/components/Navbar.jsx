@@ -67,15 +67,7 @@ export default function Navbar() {
 
             <div className="border-t border-gray-100 bg-emerald-50/50">
                 <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar text-sm">
-                    <Link
-                        href="/"
-                        className={`px-3 py-1 rounded-full whitespace-nowrap transition-all font-medium ${pathname === '/'
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'text-gray-700 hover:bg-emerald-100/60'
-                            }`}
-                    >
-                        🏠 সব পণ্য
-                    </Link>
+
                     {categories.map((cat) => {
                         const href = `/category/${cat.slug}`;
                         const isActive = pathname === href;
