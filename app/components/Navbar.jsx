@@ -9,7 +9,7 @@ export default function Navbar() {
     const pathname = usePathname();
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-
+const [banglaDate] = useState(() => getTodayBanglaDate());
 
     useEffect(() => {
         async function fetchData() {
@@ -29,7 +29,7 @@ export default function Navbar() {
         fetchData();
     }, []);
 
-    const banglaDate = getTodayBanglaDate();
+    
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
