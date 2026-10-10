@@ -3,14 +3,31 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useSession, signOut } from '@/lib/auth-client';
 import { toBengaliNumber } from '@/lib/bengali';
 
 export default function Navbar() {
+    const router = useRouter();
     const { data: session } = useSession();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [tickerProducts, setTickerProducts] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [formattedDate, setFormattedDate] = useState('');
+
+
+    useEffect(() => {
+        const today = new Date();
+        const days = ['রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'];
+        const months = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+
+        const dayName = days[today.getDay()];
+        const dateNum = toBengaliNumber(today.getDate());
+        const monthName = months[today.getMonth()];
+        const yearNum = toBengaliNumber(today.getFullYear());
+
+        setFormattedDate(`${dayName}, ${dateNum} ${monthName}, ${yearNum}`);
+    }, []);
 
 
     useEffect(() => {
@@ -20,20 +37,34 @@ export default function Navbar() {
                     fetch('https://api.api-store.workers.dev/api/bazardor/products'),
                     fetch('https://api.api-store.workers.dev/api/bazardor/categories')
                 ]);
+
                 if (prodRes.ok) {
                     const prods = await prodRes.json();
-                    setTickerProducts(prods.slice(0, 10));
+                    if (Array.isArray(prods) && prods.length > 0) {
+                        setTickerProducts(prods);
+                    }
                 }
+
                 if (catRes.ok) {
                     const cats = await catRes.json();
-                    setCategories(cats);
+                    if (Array.isArray(cats)) {
+                        setCategories(cats);
+                    }
                 }
             } catch (err) {
-                console.error('Navbar fetch error:', err);
+                console.error('Navbar API fetch error:', err);
             }
         }
         fetchData();
     }, []);
+
+
+    const handleSignOut = async () => {
+        setDropdownOpen(false);
+        await signOut();
+        router.push('/');
+        router.refresh();
+    };
 
     return (
         <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-2xs">
@@ -43,12 +74,14 @@ export default function Navbar() {
 
 
                 <Link href="/" className="flex items-center gap-2.5 group">
-                    <span className="text-2xl p-1.5 bg-emerald-50 rounded-xl border border-emerald-100/80 group-hover:scale-105 transition-transform">
+                    <span className="text-2xl p-1.5 bg-emerald-600 text-white rounded-xl shadow-xs group-hover:scale-105 transition-transform flex items-center justify-center w-10 h-10">
                         🛒
                     </span>
                     <div>
-                        <div className="text-xl font-bold text-emerald-800 leading-tight">বাজার দর</div>
-                        <p className="text-[10px] text-gray-400 font-medium">আজকের বাজারের হালচাল</p>
+                        <div className="text-xl font-bold text-gray-900 leading-tight">বাজার দর</div>
+                        <p className="text-xs text-gray-500 font-medium mt-0.5">
+                            {formattedDate || 'আজকের বাজারের হালচাল'}
+                        </p>
                     </div>
                 </Link>
 
@@ -62,7 +95,15 @@ export default function Navbar() {
                             >
                                 <div className="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center overflow-hidden">
                                     {session.user?.image ? (
-                                        <Image src={session.user.image} alt="User" width={32} height={32} className="w-full h-full object-cover" />
+                                        <Image
+                                            src={session.user.image}
+                                            alt="User"
+                                            width={32}
+                                            height={32}
+                                            unoptimized
+                                            className="w-full h-full object-cover rounded-full"
+                                            referrerPolicy="no-referrer"
+                                        />
                                     ) : (
                                         session.user?.name?.charAt(0) || 'U'
                                     )}
@@ -90,10 +131,7 @@ export default function Navbar() {
                                     </Link>
 
                                     <button
-                                        onClick={async () => {
-                                            setDropdownOpen(false);
-                                            await signOut();
-                                        }}
+                                        onClick={handleSignOut}
                                         className="w-full text-left flex items-center gap-2 px-4 py-2.5 hover:bg-rose-50 text-rose-600 font-semibold border-t border-gray-100 transition-colors"
                                     >
                                         <span>↳</span> সাইন আউট
@@ -141,19 +179,20 @@ export default function Navbar() {
 
 
             {tickerProducts.length > 0 && (
-                <div className="bg-gray-50 border-t border-gray-100 overflow-hidden py-1.5 text-xs text-gray-600">
-                    <div className="flex gap-6 animate-marquee whitespace-nowrap">
+                <div className="bg-gray-50 border-t border-gray-100 overflow-hidden py-2 text-xs text-gray-600">
+                    <div className="animate-marquee flex whitespace-nowrap">
                         {tickerProducts.concat(tickerProducts).map((item, i) => {
                             const isUp = item.change?.dir === 'up';
                             const isDown = item.change?.dir === 'down';
                             return (
-                                <div key={i} className="inline-flex items-center gap-1.5 px-2">
+                                <div key={i} className="inline-flex items-center gap-1.5 px-4 shrink-0">
                                     <span>{item.image || '🛒'}</span>
                                     <span className="font-semibold text-gray-800">{item.nameBn}:</span>
                                     <span className="font-bold">{toBengaliNumber(item.today)} টাকা/{item.unit}</span>
                                     <span className={`text-[10px] font-bold ${isUp ? 'text-rose-600' : isDown ? 'text-emerald-700' : 'text-gray-500'}`}>
                                         {isUp ? '▲' : isDown ? '▼' : '—'} {toBengaliNumber(item.change?.pct)}%
                                     </span>
+                                    <span className="text-gray-300 ml-2">•</span>
                                 </div>
                             );
                         })}
