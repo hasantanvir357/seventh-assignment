@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { toBengaliNumber } from '@/lib/bengali';
 
-export default function CategoryPage() {
+function CategoryContent() {
     const params = useParams();
     const slug = params?.slug;
 
@@ -109,5 +109,17 @@ export default function CategoryPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function CategoryPage() {
+    return (
+        <Suspense fallback={
+            <div className="max-w-7xl mx-auto px-4 py-12 text-center text-xs text-emerald-800">
+                ক্যাটাগরি লোড হচ্ছে...
+            </div>
+        }>
+            <CategoryContent />
+        </Suspense>
     );
 }
