@@ -149,7 +149,7 @@ export default function ProductDetailPage({ params }) {
                     </div>
 
 
-                    <div className="bg-[#f0f7f2] p-5 rounded-2xl border border-emerald-100/80 w-full sm:w-auto text-center min-w-[200px]">
+                    <div className="bg-[#f0f7f2] p-5 rounded-2xl border border-emerald-100/80 w-full sm:w-auto text-center min-w-50">
                         <span className="text-[11px] text-gray-500 font-medium block mb-1">আজকের দাম</span>
                         <div className="text-3xl font-extrabold text-gray-900">
                             {toBengaliNumber(todayPrice)}
