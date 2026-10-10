@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 import { toBengaliNumber } from '@/lib/bengali';
 
-export default function ProductDetailPage() {
+function ProductDetailContent() {
   const router = useRouter();
   const urlParams = useParams();
   const slug = urlParams?.slug;
@@ -96,25 +96,25 @@ export default function ProductDetailPage() {
 
   const isUp = product.change?.dir === 'up';
   const isDown = product.change?.dir === 'down';
-  
+
   const todayPrice = product.today || 0;
   const yesterdayPrice = product.yesterday || todayPrice;
   const priceDiff = Math.abs(todayPrice - yesterdayPrice);
 
   const marketsList = Array.isArray(product.markets) ? product.markets : [];
 
-  let minOverallPrice = marketsList.length > 0 
-    ? Math.min(...marketsList.map(m => m.min)) 
+  let minOverallPrice = marketsList.length > 0
+    ? Math.min(...marketsList.map(m => m.min))
     : todayPrice;
 
-  let maxOverallPrice = marketsList.length > 0 
-    ? Math.max(...marketsList.map(m => m.max)) 
+  let maxOverallPrice = marketsList.length > 0
+    ? Math.max(...marketsList.map(m => m.max))
     : todayPrice;
 
   return (
     <div className="bg-[#f4f6f4] min-h-screen py-8">
       <div className="max-w-5xl mx-auto px-4 space-y-6">
-        
+
         <div className="flex items-center gap-2 text-xs text-gray-500 font-medium">
           <Link href="/" className="hover:text-emerald-700">হোম</Link>
           <span>›</span>
@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
 
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-gray-800">দামের সারসংক্ষেপ</h2>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-1">
               <span className="text-[11px] text-gray-400 font-semibold block">সর্বনিম্ন দাম</span>
@@ -227,5 +227,18 @@ export default function ProductDetailPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ProductDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-3">
+        <div className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs font-semibold text-emerald-800">পণ্যের বিস্তারিত লোড হচ্ছে...</p>
+      </div>
+    }>
+      <ProductDetailContent />
+    </Suspense>
   );
 }
